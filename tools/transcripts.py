@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Any
 
 TRANSCRIPTS_DIR = Path("transcripts")
 
@@ -8,11 +8,13 @@ TRANSCRIPTS_DIR = Path("transcripts")
 def get_creator_transcripts_markdown(creator: str) -> str:
     """Return all transcripts for the given creator as a single markdown string.
 
-    Args:
-        creator_name (str): Nome do criador (ex: 'gran_concursos')
-        
-    Returns:
-        str: Transcricoes formatadas em markdown ou mensagem de erro.
+    Output format:
+
+    Transcript 1
+    <transcrição>
+
+    Transcript 2
+    <transcrição>
     """
     file_path = TRANSCRIPTS_DIR / f"{creator}.json"
     if not file_path.exists():
@@ -38,6 +40,40 @@ def get_creator_transcripts_markdown(creator: str) -> str:
         index += 1
 
     return ("\n\n".join(transcripts)).strip()
+
+
+def get_creator_transcripts_list(creator: str, limit: int | None = None) -> List[str]:
+    """Return a list of transcript strings for the given creator.
+    Optionally limit the number of items returned.
+    """
+    file_path = TRANSCRIPTS_DIR / f"{creator}.json"
+    if not file_path.exists():
+        return []
+
+    try:
+        data = json.loads(file_path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+    if not isinstance(data, list):
+        return []
+
+    texts: List[str] = []
+    for item in data:
+        if isinstance(item, dict):
+            text = item.get("transcript")
+            if text:
+                texts.append(str(text))
+        if limit is not None and len(texts) >= limit:
+            break
+    return texts
+
+
+def prepare_creator_context(creator: str, limit: int = 5) -> Dict[str, Any]:
+    """Return a composite object with samples (list) and markdown (string)."""
+    samples = get_creator_transcripts_list(creator, limit=limit)
+    markdown = get_creator_transcripts_markdown(creator)
+    return {"creator": creator, "samples": samples, "markdown": markdown}
 
 
 if __name__ == "__main__":
