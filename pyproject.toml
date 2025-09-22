@@ -1,16 +1,10 @@
 [project]
-name = "agno-teste"
+name = "agno-project"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "LoboProgrammingg",email = "matheusloboo2001@gmail.com"}
-]
+description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "agno==1.5.0",
+    "python-dotenv>=1.1.1",
 ]
-
-
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
