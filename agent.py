@@ -4,8 +4,17 @@ from agno.tools.tavily import TavilyTools
 from agno.storage.sqlite import SqliteStorage
 from agno.playground import Playground, serve_playground_app
 from dotenv import load_dotenv
+from typing import Annotated
+from tools.transcripts import get_creator_transcripts_markdown
 
 load_dotenv()
+
+
+def read_creator_transcripts(
+    creator: Annotated[str, "Nome do criador (nome da pasta em transcripts/)"],
+) -> str:
+    return get_creator_transcripts_markdown(creator)
+
 
 copywriter = Agent(
     model=Gemini(id="gemini-1.5-flash"),
@@ -16,7 +25,7 @@ copywriter = Agent(
         table_name="agent_sessions",
         db_file="tmp/storage.db"
     ),
-    tools=[TavilyTools()],
+    tools=[TavilyTools(), read_creator_transcripts],
     show_tool_calls=True,
     instructions=open("prompts/copywriter.md").read()
 )
